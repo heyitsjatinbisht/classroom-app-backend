@@ -15,15 +15,7 @@ const timetableSchema = new mongoose.Schema({
   },
   day: {
     type: String,
-    enum: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ],
+    enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
     required: true,
   },
 });
@@ -58,4 +50,4 @@ const classroomSchema = new Schema(
   { timestamps: true }
 );
 
-const Classroom = mongoose.model("Classroom", classroomSchema);
+export const Classroom = mongoose.model("Classroom", classroomSchema);

@@ -10,6 +10,9 @@ const registerUser = asyncHandler(async (req, res) => {
   if ([fullName, email, role, password].some((field) => field?.trim() === "")) {
     throw new ApiError(400, "All fields are required");
   }
+  if (!["Teacher", "Student"].includes(role)) {
+    throw new ApiError(400, "Invalid role specified");
+  }
 
   const existedUser = await User.findOne(email);
 
@@ -82,3 +85,5 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     );
 });
+
+export { registerUser, loginUser };

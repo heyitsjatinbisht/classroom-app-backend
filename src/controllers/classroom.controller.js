@@ -8,7 +8,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export const createClassroom = asyncHandler(async (req, res) => {
   const { name, startTime, endTime, days } = req.body;
 
-  if (!name || !startTime || !endTime || !days) {
+  if (!name || !startTime || !endTime || !days || days.length === 0) {
     throw new ApiError(400, "All fields are required");
   }
 
@@ -95,7 +95,7 @@ export const assignStudentsToClassroom = asyncHandler(async (req, res) => {
 
 // Teacher can create a timetable for their classroom
 export const createTimetable = asyncHandler(async (req, res) => {
-  const { classroomId, timetable } = req.body; // Timetable is an array of periods
+  const { classroomId, timetable } = req.body;
 
   const classroom = await Classroom.findById(classroomId);
 
@@ -114,19 +114,36 @@ export const createTimetable = asyncHandler(async (req, res) => {
     );
   }
 
-  // Ensure periods do not overlap and fall within the classroom's start and end times
-  for (let period of timetable) {
+  // Validate each timetable entry
+  timetable.forEach((period) => {
+    // Check if period is within classroom hours
     if (
       period.startTime < classroom.startTime ||
-      period.endTime > classroom.endTime
+      period.endTime > classroom.endTime ||
+      !classroom.days.includes(period.day)
     ) {
-      throw new ApiError(400, "Period time is outside of classroom hours");
+      throw new ApiError(400, `Invalid timetable entry for ${period.subject}`);
     }
-    // Additional checks for overlapping periods can be implemented here
-  }
 
-  // Save the timetable
-  classroom.timetable = timetable;
+    // Check for overlapping periods
+    classroom.timetable.forEach((existingPeriod) => {
+      if (
+        existingPeriod.day === period.day &&
+        !(
+          period.endTime <= existingPeriod.startTime ||
+          period.startTime >= existingPeriod.endTime
+        )
+      ) {
+        throw new ApiError(
+          400,
+          `Timetable entry for ${period.subject} overlaps with existing period ${existingPeriod.subject}`
+        );
+      }
+    });
+  });
+
+  // Save the new timetable
+  classroom.timetable.push(...timetable);
   await classroom.save();
 
   return res
