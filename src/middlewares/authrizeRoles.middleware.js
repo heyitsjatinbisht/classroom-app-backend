@@ -1,5 +1,5 @@
-import ApiError from "../utils/ApiError.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // Middleware to check for required roles
 export const authorizeRoles = (...allowedRoles) => {

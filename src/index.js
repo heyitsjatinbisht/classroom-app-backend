@@ -1,9 +1,7 @@
 import dotenv from "dotenv";
 import connectDB from "./db/db.js";
 import { app } from "./app.js";
-import mongoose from "mongoose";
 import { User } from "./models/user.model.js";
-import { DB_NAME } from "./constants.js";
 
 dotenv.config();
 
@@ -11,9 +9,6 @@ const createPrincipalAccount = async () => {
   try {
     const principalEmail = "principal@classroom.com";
     const principalPassword = "Admin";
-
-    // Connect to MongoDB (in case it's not connected)
-    await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
 
     // Check if the principal account already exists
     const existingPrincipal = await User.findOne({ email: principalEmail });
@@ -31,9 +26,6 @@ const createPrincipalAccount = async () => {
     } else {
       console.log("Principal account already exists.");
     }
-
-    // Disconnect from MongoDB
-    await mongoose.disconnect();
   } catch (error) {
     console.error("Error creating principal account:", error);
     process.exit(1);

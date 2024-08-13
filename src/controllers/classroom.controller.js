@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 // Principal can create classrooms
-export const createClassroom = asyncHandler(async (req, res) => {
+const createClassroom = asyncHandler(async (req, res) => {
   const { name, startTime, endTime, days } = req.body;
 
   if (!name || !startTime || !endTime || !days || days.length === 0) {
@@ -25,7 +25,7 @@ export const createClassroom = asyncHandler(async (req, res) => {
 });
 
 // Principal can assign teachers to classrooms
-export const assignTeacherToClassroom = asyncHandler(async (req, res) => {
+const assignTeacherToClassroom = asyncHandler(async (req, res) => {
   const { teacherId, classroomId } = req.body;
 
   const teacher = await User.findById(teacherId);
@@ -58,7 +58,7 @@ export const assignTeacherToClassroom = asyncHandler(async (req, res) => {
 });
 
 // Principal or Teacher can assign students to classrooms
-export const assignStudentsToClassroom = asyncHandler(async (req, res) => {
+const assignStudentsToClassroom = asyncHandler(async (req, res) => {
   const { studentIds, classroomId } = req.body;
 
   const classroom = await Classroom.findById(classroomId);
@@ -94,7 +94,7 @@ export const assignStudentsToClassroom = asyncHandler(async (req, res) => {
 });
 
 // Teacher can create a timetable for their classroom
-export const createTimetable = asyncHandler(async (req, res) => {
+const createTimetable = asyncHandler(async (req, res) => {
   const { classroomId, timetable } = req.body;
 
   const classroom = await Classroom.findById(classroomId);
@@ -152,7 +152,7 @@ export const createTimetable = asyncHandler(async (req, res) => {
 });
 
 // Students can view their classroom details
-export const getClassroomDetails = asyncHandler(async (req, res) => {
+const getClassroomDetails = asyncHandler(async (req, res) => {
   if (req.user.role !== "Student") {
     throw new ApiError(403, "You are not authorized to view this information");
   }
@@ -175,3 +175,78 @@ export const getClassroomDetails = asyncHandler(async (req, res) => {
       )
     );
 });
+const getClassrooms = asyncHandler(async (req, res) => {
+  // Ensure that only principals can access this endpoint
+  if (req.user.role !== "Principal") {
+    throw new ApiError(403, "You are not authorized to view this information");
+  }
+
+  // Fetch all classrooms from the database
+  const classrooms = await Classroom.find().populate(
+    "teacher",
+    "fullName email"
+  );
+
+  // Respond with the list of classrooms
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, classrooms, "Classrooms retrieved successfully")
+    );
+});
+
+// Get all students in a specific classroom
+const getStudentsByClassroom = asyncHandler(async (req, res) => {
+  const { classroomId } = req.params;
+
+  const classroom = await Classroom.findById(classroomId).populate(
+    "students",
+    "fullName email"
+  );
+
+  if (!classroom) {
+    throw new ApiError(404, "Classroom not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        classroom.students,
+        "Students retrieved successfully"
+      )
+    );
+});
+
+// Get timetable for a specific classroom
+const getTimetable = asyncHandler(async (req, res) => {
+  const { classroomId } = req.params;
+
+  const classroom = await Classroom.findById(classroomId);
+
+  if (!classroom) {
+    throw new ApiError(404, "Classroom not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        classroom.timetable,
+        "Timetable retrieved successfully"
+      )
+    );
+});
+
+export {
+  createClassroom,
+  assignStudentsToClassroom,
+  assignTeacherToClassroom,
+  createTimetable,
+  getClassroomDetails,
+  getClassrooms,
+  getStudentsByClassroom,
+  getTimetable,
+};

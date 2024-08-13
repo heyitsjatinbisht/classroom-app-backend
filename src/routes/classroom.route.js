@@ -1,25 +1,23 @@
 import express from "express";
-import { authenticate } from "../middlewares/authMiddleware.js";
-import { authorizeRoles } from "../middlewares/roleMiddleware.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
+import { authorizeRoles } from "../middlewares/authrizeRoles.middleware.js";
 import {
   createClassroom,
-  getClassrooms,
+  assignStudentsToClassroom,
   assignTeacherToClassroom,
-  assignStudentToTeacher,
-} from "../controllers/classroomController.js";
+  createTimetable,
+  getClassroomDetails,
+  getClassrooms,
+  getStudentsByClassroom,
+  getTimetable,
+} from "../controllers/classroom.controller.js";
 
 const router = express.Router();
 
-// Routes for creating and managing classrooms
+// Create a new classroom (Principal only)
 router.post("/", authenticate, authorizeRoles("Principal"), createClassroom);
 
-router.get(
-  "/",
-  authenticate,
-  authorizeRoles("Principal", "Teacher"),
-  getClassrooms
-);
-
+// Assign a teacher to a classroom (Principal only)
 router.post(
   "/assign-teacher",
   authenticate,
@@ -27,11 +25,43 @@ router.post(
   assignTeacherToClassroom
 );
 
+// Assign students to a classroom (Principal or Teacher)
 router.post(
-  "/assign-student",
+  "/assign-students",
   authenticate,
   authorizeRoles("Principal", "Teacher"),
-  assignStudentToTeacher
+  assignStudentsToClassroom
+);
+
+// Create a timetable entry for a classroom (Teacher only)
+router.post(
+  "/:classroomId/timetables",
+  authenticate,
+  authorizeRoles("Teacher"),
+  createTimetable
+);
+
+// Get all classrooms (Principal only)
+router.get("/", authenticate, authorizeRoles("Principal"), getClassrooms);
+
+// Student routes
+router.get(
+  "/:classroomId/students",
+  authenticate,
+  authorizeRoles("Student"),
+  getStudentsByClassroom
+);
+router.get(
+  "/:classroomId/timetable",
+  authenticate,
+  authorizeRoles("Student"),
+  getTimetable
+);
+router.get(
+  "/classroom-details",
+  authenticate,
+  authorizeRoles("Student"),
+  getClassroomDetails
 );
 
 export default router;
