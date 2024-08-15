@@ -16,11 +16,12 @@ const router = express.Router();
 
 // Public routes
 router.post("/login", loginUser);
-router.post("/logout", logoutUser);
+
+// Protected routes
 
 router.get("/current-user", authenticate, getCurrentUser);
 
-// Protected routes
+router.post("/logout", authenticate, logoutUser);
 router.post(
   "/register",
   authenticate,
