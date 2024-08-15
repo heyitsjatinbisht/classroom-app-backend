@@ -88,6 +88,26 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // logout
 
+const logoutUser = asyncHandler(async (req, res) => {
+  // Clear the access token cookie
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "User logged out successfully"));
+});
+
+// get current user
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+});
+
 // Get all users (for Principal)
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find().select("-password");
@@ -161,4 +181,13 @@ const deleteUser = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, null, "User deleted successfully"));
 });
 
-export { registerUser, loginUser, getUsers, getUser, updateUser, deleteUser };
+export {
+  registerUser,
+  loginUser,
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
+  logoutUser,
+  getCurrentUser,
+};

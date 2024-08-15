@@ -8,12 +8,17 @@ import {
   getUser,
   updateUser,
   deleteUser,
+  logoutUser,
+  getCurrentUser,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
 
 // Public routes
 router.post("/login", loginUser);
+router.post("/logout", logoutUser);
+
+router.get("/current-user", authenticate, getCurrentUser);
 
 // Protected routes
 router.post(
@@ -34,14 +39,14 @@ router.get(
 
 // Update user
 router.put(
-  "/users/:id",
+  "/:id",
   authorizeRoles("Principal", "Teacher"), // Principal and Teacher can update users
   updateUser
 );
 
 // Delete user
 router.delete(
-  "/users/:id",
+  "/:id",
   authorizeRoles("Principal", "Teacher"), // Principal and Teacher can delete users
   deleteUser
 );
