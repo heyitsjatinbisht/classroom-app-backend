@@ -41,6 +41,7 @@ router.get(
 // Update user
 router.put(
   "/:id",
+  authenticate,
   authorizeRoles("Principal", "Teacher"), // Principal and Teacher can update users
   updateUser
 );
@@ -48,6 +49,7 @@ router.put(
 // Delete user
 router.delete(
   "/:id",
+  authenticate,
   authorizeRoles("Principal", "Teacher"), // Principal and Teacher can delete users
   deleteUser
 );

@@ -162,22 +162,7 @@ const updateUser = asyncHandler(async (req, res) => {
 const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const user = await User.findById(id);
-
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
-
-  // Only allow deletion if the user is a Principal or the user is a Student being deleted by a Teacher
-  if (
-    req.user.role !== "Principal" &&
-    req.user.role === "Teacher" &&
-    user.role === "Student"
-  ) {
-    throw new ApiError(403, "You do not have permission to delete this user");
-  }
-
-  await user.remove();
+  await User.deleteOne({ _id: id });
 
   res.status(200).json(new ApiResponse(200, null, "User deleted successfully"));
 });

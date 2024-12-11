@@ -35,14 +35,19 @@ router.post(
 
 // Create a timetable entry for a classroom (Teacher only)
 router.post(
-  "/:classroomId/timetables",
+  "/:classroomId/timetable",
   authenticate,
   authorizeRoles("Teacher"),
   createTimetable
 );
 
-// Get all classrooms (Principal only)
-router.get("/", authenticate, authorizeRoles("Principal"), getClassrooms);
+// Get all classrooms
+router.get(
+  "/",
+  authenticate,
+  authorizeRoles("Principal", "Teacher"),
+  getClassrooms
+);
 
 // Student routes
 router.get(
