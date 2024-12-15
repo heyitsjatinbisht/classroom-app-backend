@@ -29,7 +29,12 @@ router.post(
   registerUser
 );
 
-router.get("/", authenticate, authorizeRoles("Principal", "Teacher"), getUsers);
+router.get(
+  "/",
+  authenticate,
+  authorizeRoles("Principal", "Teacher", "Student"),
+  getUsers
+);
 
 router.get(
   "/:id",
